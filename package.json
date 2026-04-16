@@ -1,0 +1,33 @@
+{
+  "name": "wetpaint-compatibility-playwright",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Playwright compatibility and RWD test suite for the WETPAINT SIT environment.",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:compat": "playwright test --grep @compat",
+    "test:rwd": "playwright test --grep @rwd",
+    "test:media": "playwright test --grep @media",
+    "test:mobile": "playwright test --grep @mobile",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "record:iphone": "node scripts/playwright-record.mjs iphone",
+    "record:android": "node scripts/playwright-record.mjs android",
+    "record:ipad": "node scripts/playwright-record.mjs ipad-safari",
+    "record:random-mobile": "node scripts/playwright-record.mjs random-mobile",
+    "manual:trace": "node scripts/manual-trace-session.mjs random-mobile",
+    "manual:trace:iphone": "node scripts/manual-trace-session.mjs iphone",
+    "manual:trace:android": "node scripts/manual-trace-session.mjs android",
+    "manual:trace:ipad": "node scripts/manual-trace-session.mjs ipad-safari",
+    "report:summary": "node scripts/summarize-playwright-report.mjs",
+    "pw:install": "playwright install chromium webkit"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@types/node": "^24.6.0",
+    "dotenv": "^16.6.1",
+    "playwright": "^1.55.0",
+    "typescript": "^5.9.3"
+  }
+}
