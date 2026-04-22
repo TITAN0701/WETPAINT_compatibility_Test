@@ -6,6 +6,7 @@ export class LoginPage {
 
   private usernameCandidates() {
     return [
+      this.page.getByTestId('login-username'),
       this.page.locator('#username'),
       this.page.getByLabel('帳號'),
       this.page.getByPlaceholder(/請輸入/i)
@@ -14,6 +15,7 @@ export class LoginPage {
 
   private passwordCandidates() {
     return [
+      this.page.getByTestId('login-password'),
       this.page.locator('#password'),
       this.page.getByLabel('密碼'),
       this.page.locator('input[type="password"]')
@@ -22,6 +24,7 @@ export class LoginPage {
 
   private loginButtonCandidates() {
     return [
+      this.page.getByTestId('login-submit'),
       this.page.getByRole('button', { name: '登入' }),
       this.page.locator('button').filter({ hasText: '登入' })
     ];
@@ -56,6 +59,8 @@ export class LoginPage {
   async togglePasswordVisibility() {
     await clickFirstVisible(
       [
+        this.page.getByTestId('login-toggle-password'),
+        this.page.getByRole('button', { name: /顯示密碼|隱藏密碼|切換密碼顯示/ }),
         this.page.locator('#password').locator('..').locator('button'),
         this.page.locator('input[type="password"]').locator('..').locator('button'),
         this.page.locator('button').filter({ has: this.page.locator('svg') }).last()
@@ -67,6 +72,7 @@ export class LoginPage {
   async openRegister() {
     await clickFirstVisible(
       [
+        this.page.getByTestId('login-register-entry'),
         this.page.getByRole('button', { name: /註冊|創立帳號/ }),
         this.page.getByRole('link', { name: /註冊|創立帳號/ }),
         this.page.locator('button, a').filter({ hasText: /註冊|創立帳號/ })
@@ -78,6 +84,7 @@ export class LoginPage {
   async assertForgotPasswordEntryVisible() {
     await expectAnyVisible(
       [
+        this.page.getByTestId('login-forgot-password'),
         this.page.getByRole('button', { name: /忘記密碼/ }),
         this.page.getByRole('link', { name: /忘記密碼/ }),
         this.page.locator('button, a').filter({ hasText: /忘記密碼/ })

@@ -1,6 +1,4 @@
 node_modules/
 .npm-cache/
-playwright-report/
-test-results/
-reports/generated/
+reports/
 .env

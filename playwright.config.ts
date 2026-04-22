@@ -3,7 +3,7 @@ import { config as loadEnv } from 'dotenv';
 
 loadEnv();
 
-const baseURL = process.env.PW_BASE_URL || 'http://61.220.55.161:47080';
+const baseURL = process.env.PW_BASE_URL || 'https://sit-wetpaint.ddns.net';
 const defaultTimeout = Number(process.env.PW_DEFAULT_TIMEOUT_MS || 30_000);
 
 export default defineConfig({
@@ -16,16 +16,16 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 2 : undefined,
-  outputDir: 'test-results/artifacts',
+  outputDir: 'reports/artifacts',
   reporter: [
     ['list'],
-    ['html', { outputFolder: 'playwright-report/html', open: 'never' }],
-    ['json', { outputFile: 'playwright-report/results/playwright-results.json' }]
+    ['html', { outputFolder: 'reports/playwright-html', open: 'never' }],
+    ['json', { outputFile: 'reports/playwright-results.json' }]
   ],
   use: {
     baseURL,
     trace: 'retain-on-failure',
-    screenshot: 'only-on-failure',
+    screenshot: 'off',
     video: 'retain-on-failure',
     actionTimeout: 15_000,
     navigationTimeout: 30_000,
@@ -42,7 +42,7 @@ export default defineConfig({
     {
       name: 'iphone-safari',
       use: {
-        ...devices['iPhone 13'],
+        ...devices['iPhone 14 Pro'],
         browserName: 'webkit'
       }
     },
@@ -56,14 +56,14 @@ export default defineConfig({
     {
       name: 'ipad-safari',
       use: {
-        ...devices['iPad Pro 11'],
+        ...devices['iPad (gen 11)'],
         browserName: 'webkit'
       }
     },
     {
       name: 'ipad-chrome',
       use: {
-        ...devices['iPad Pro 11'],
+        ...devices['iPad (gen 11)'],
         browserName: 'chromium'
       }
     }

@@ -3,7 +3,7 @@ import { LoginPage } from '../../src/pages/login-page';
 import { test, expect } from '../../src/fixtures/test';
 
 test.describe('Admin management compatibility', () => {
-  test('@compat 後台主要管理頁可切換', async ({ page, accounts }) => {
+  test('@compat @readonly @admin 後台主要管理頁可切換', async ({ page, accounts }) => {
     const loginPage = new LoginPage(page);
     const adminShell = new AdminShellPage(page);
 

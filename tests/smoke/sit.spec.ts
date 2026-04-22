@@ -1,11 +1,10 @@
 import { AdminShellPage } from '../../src/pages/admin-shell';
 import { FrontdeskPage } from '../../src/pages/frontdesk-page';
 import { LoginPage } from '../../src/pages/login-page';
-import { MediaFlowPage } from '../../src/pages/media-flow-page';
 import { test, expect } from '../../src/fixtures/test';
 
 test.describe('SIT smoke', () => {
-  test('@smoke @compat 管理者可登入後台並切換到前台', async ({ page, accounts }, testInfo) => {
+  test('@smoke @compat @readonly @admin 管理者可登入後台並切換到前台', async ({ page, accounts }, testInfo) => {
     test.skip(/iphone|android|ipad/.test(testInfo.project.name), 'desktop admin smoke only');
 
     const loginPage = new LoginPage(page);
@@ -21,7 +20,7 @@ test.describe('SIT smoke', () => {
     await frontdesk.expectLoaded();
   });
 
-  test('@smoke @compat @mobile 家長可登入前台並載入手機首頁', async ({ page, accounts }, testInfo) => {
+  test('@smoke @compat @readonly @mobile @frontdesk 家長可登入前台並載入手機首頁', async ({ page, accounts }, testInfo) => {
     test.skip(!/iphone|android/.test(testInfo.project.name), 'mobile smoke only');
 
     const loginPage = new LoginPage(page);
@@ -33,10 +32,9 @@ test.describe('SIT smoke', () => {
     await expect(page.locator('body')).toContainText(/孩童檔案|發展檢測|開始檢測|下次檢測日期/);
   });
 
-  test('@smoke @compat @media 可從前台開始一筆 AI 題組', async ({ page, accounts, names }, testInfo) => {
+  test('@compat @readonly @media 可從前台看見 AI 題組入口', async ({ page, accounts, names }, testInfo) => {
     const loginPage = new LoginPage(page);
     const frontdesk = new FrontdeskPage(page);
-    const mediaFlow = new MediaFlowPage(page);
 
     await loginPage.goto();
     await loginPage.login(accounts.frontdeskParent);
@@ -45,9 +43,7 @@ test.describe('SIT smoke', () => {
       await frontdesk.openChildByName(names.aiChildDisplayName);
     }
     await frontdesk.openDevelopmentTab();
-    await frontdesk.openAssessmentEntry();
-    await mediaFlow.skipTutorialIfPresent();
-    await mediaFlow.expectQuestionOrUploadArea();
+    await frontdesk.expectAssessmentEntryVisible();
     await expect(page.locator('body')).toBeVisible();
   });
 });

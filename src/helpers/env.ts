@@ -40,7 +40,7 @@ function env(name: string, fallback = ''): string {
 
 export const appAccounts: AppAccounts = {
   admin: {
-    loginId: env('ADMIN_EMAIL', 'admin@example.com'),
+    loginId: env('ADMIN_EMAIL', '0999999993'),
     password: env('ADMIN_PASSWORD', 'password123'),
     label: 'admin-email'
   },
@@ -50,18 +50,18 @@ export const appAccounts: AppAccounts = {
     label: 'admin-phone'
   },
   parent: {
-    loginId: env('PARENT_EMAIL', 'parent@example.com'),
+    loginId: env('PARENT_EMAIL', '0999999993'),
     password: env('PARENT_PASSWORD', 'password123'),
     label: 'parent-email'
   },
   parentPhone: {
-    loginId: env('PARENT_PHONE_LOGIN', '0944444444'),
+    loginId: env('PARENT_PHONE_LOGIN', '0999999993'),
     password: env('PARENT_PHONE_PASSWORD', 'password123'),
     label: 'parent-phone'
   },
   frontdeskParent: {
-    loginId: env('FRONTDESK_PARENT_EMAIL', 'p9geepmczk@pxdmail.net'),
-    password: env('FRONTDESK_PARENT_PASSWORD', 'TestPassword123'),
+    loginId: env('FRONTDESK_PARENT_EMAIL', '0999999993'),
+    password: env('FRONTDESK_PARENT_PASSWORD', 'password123'),
     label: 'frontdesk-parent'
   },
   firstLogin: env('FIRST_LOGIN_LOGIN_ID')
@@ -74,9 +74,9 @@ export const appAccounts: AppAccounts = {
 };
 
 export const appNames: AppNames = {
-  childDisplayName: env('CHILD_DISPLAY_NAME', '小王'),
-  frontdeskExistingChildName: env('FRONTDESK_EXISTING_CHILD_NAME', 'okay醬'),
-  aiChildDisplayName: env('AI_CHILD_DISPLAY_NAME', '陳小派')
+  childDisplayName: env('CHILD_DISPLAY_NAME', '阿古'),
+  frontdeskExistingChildName: env('FRONTDESK_EXISTING_CHILD_NAME', '阿古'),
+  aiChildDisplayName: env('AI_CHILD_DISPLAY_NAME', 'test')
 };
 
 export const appAssets: AppAssets = {

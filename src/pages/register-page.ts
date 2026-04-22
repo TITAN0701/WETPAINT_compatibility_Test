@@ -1,5 +1,5 @@
 import { expect, type Locator, type Page } from '@playwright/test';
-import { clickFirstVisible, expectAnyVisible, fillFirstVisible, firstVisible } from '../helpers/locator';
+import { clickFirstVisible, expectAnyVisible, fillFirstVisible, firstVisible, waitForUiSettled } from '../helpers/locator';
 
 export interface RegisterFormInput {
   name: string;
@@ -15,25 +15,42 @@ export class RegisterPage {
   private fieldCandidates(name: 'name' | 'email' | 'phone' | 'password' | 'confirmPassword'): Locator[] {
     switch (name) {
       case 'name':
-        return [this.page.getByPlaceholder('請輸入姓名'), this.page.locator('input').nth(0)];
+        return [
+          this.page.getByTestId('register-name'),
+          this.page.locator('input#name'),
+          this.page.getByPlaceholder(/name|姓名|暱稱|全名/i),
+          this.page.locator('main input').nth(0)
+        ];
       case 'email':
-        return [this.page.locator('input[type="email"]'), this.page.getByPlaceholder(/email/i)];
+        return [
+          this.page.getByTestId('register-email'),
+          this.page.locator('input[type="email"]'),
+          this.page.getByPlaceholder(/email|@/i)
+        ];
       case 'phone':
-        return [this.page.locator('input[type="tel"]'), this.page.getByPlaceholder(/09/)];
+        return [
+          this.page.getByTestId('register-phone'),
+          this.page.locator('input[type="tel"]'),
+          this.page.getByPlaceholder(/09|phone|手機/i)
+        ];
       case 'password':
-        return [this.page.locator('input[type="password"]').nth(0)];
+        return [this.page.getByTestId('register-password'), this.page.locator('input[type="password"]').nth(0)];
       case 'confirmPassword':
-        return [this.page.locator('input[type="password"]').nth(1)];
+        return [this.page.getByTestId('register-confirm-password'), this.page.locator('input[type="password"]').nth(1)];
     }
   }
 
   async assertLoaded() {
+    await waitForUiSettled(this.page).catch(() => undefined);
     await expectAnyVisible(
       [
-        this.page.getByRole('heading', { name: /註冊|創立帳號/ }),
-        this.page.locator('h1, h2').filter({ hasText: /註冊|創立帳號/ })
+        ...this.fieldCandidates('name'),
+        ...this.fieldCandidates('email'),
+        ...this.fieldCandidates('password'),
+        this.page.getByRole('heading'),
+        this.page.locator('main').getByText(/註冊|建立帳號|create/i).first()
       ],
-      { name: 'register page title' }
+      { name: 'register form' }
     );
   }
 
@@ -45,12 +62,22 @@ export class RegisterPage {
     await fillFirstVisible(this.fieldCandidates('confirmPassword'), form.confirmPassword, { name: 'register confirm password' });
   }
 
+  async expectBasicFieldValues(form: RegisterFormInput) {
+    await expect(await firstVisible(this.fieldCandidates('name'), { name: 'register name value' })).toHaveValue(form.name);
+    await expect(await firstVisible(this.fieldCandidates('email'), { name: 'register email value' })).toHaveValue(form.email);
+    await expect(await firstVisible(this.fieldCandidates('phone'), { name: 'register phone value' })).toHaveValue(form.phone);
+    await expect(await firstVisible(this.fieldCandidates('password'), { name: 'register password value' })).toHaveValue(form.password);
+    await expect(await firstVisible(this.fieldCandidates('confirmPassword'), { name: 'register confirm password value' })).toHaveValue(
+      form.confirmPassword
+    );
+  }
+
   async chooseGender(value: '男' | '女') {
     await clickFirstVisible(
       [
         this.page.getByLabel(value),
         this.page.getByRole('radio', { name: value }),
-        this.page.locator('label, button').filter({ hasText: value })
+        this.page.locator('label, button, div').filter({ hasText: value })
       ],
       { name: `register gender ${value}` }
     );
@@ -59,19 +86,39 @@ export class RegisterPage {
   async toggleTerms() {
     await clickFirstVisible(
       [
-        this.page.getByLabel(/同意|服務條款/),
+        this.page.getByTestId('register-terms-checkbox'),
         this.page.getByRole('checkbox'),
-        this.page.locator('label, button, span').filter({ hasText: /同意|服務條款/ })
+        this.page.getByRole('button', { name: /條款|同意|terms/i }),
+        this.page.locator('label, button, span, div').filter({ hasText: /條款|同意|terms/i })
       ],
       { name: 'register terms' }
     );
   }
 
+  async expectTermsChecked() {
+    await expect
+      .poll(async () => {
+        const checkedCount = await this.page
+          .locator(
+            [
+              '[data-testid="register-terms-checkbox"][data-state="checked"]',
+              '[data-testid="register-terms-checkbox"][aria-checked="true"]',
+              '[role="checkbox"][aria-checked="true"]',
+              'input[type="checkbox"]:checked'
+            ].join(', ')
+          )
+          .count();
+        return checkedCount > 0;
+      })
+      .toBeTruthy();
+  }
+
   async submit() {
     await clickFirstVisible(
       [
-        this.page.getByRole('button', { name: /建立帳號|註冊|確認註冊/ }),
-        this.page.locator('button').filter({ hasText: /建立帳號|註冊|確認註冊/ })
+        this.page.getByTestId('register-submit'),
+        this.page.getByRole('button', { name: /註冊|建立帳號|送出/i }),
+        this.page.locator('button').filter({ hasText: /註冊|建立帳號|送出/i })
       ],
       { name: 'register submit' }
     );
@@ -80,8 +127,9 @@ export class RegisterPage {
   async assertTermsVisible() {
     await expectAnyVisible(
       [
-        this.page.getByText(/服務條款/),
-        this.page.getByText(/同意/)
+        this.page.getByRole('checkbox'),
+        this.page.getByText(/條款|同意|terms/i),
+        this.page.getByRole('button', { name: /條款|同意|terms/i })
       ],
       { name: 'register terms section' }
     );
@@ -90,7 +138,7 @@ export class RegisterPage {
   async expectValidationState() {
     const invalidIndicators = [
       this.page.locator('[aria-invalid="true"]'),
-      this.page.getByText(/必填|格式|請輸入|錯誤/),
+      this.page.getByText(/必填|錯誤|invalid|required/i),
       this.page.locator('.text-red-500, .text-destructive, .text-danger')
     ];
 

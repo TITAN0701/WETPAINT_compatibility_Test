@@ -1,6 +1,43 @@
 # Selector Inventory
 
-The first Playwright version can run with text and structural selectors, but these `data-testid` attributes should be added to stabilize the suite.
+This repo only contains the Playwright suite. The product frontend should add these `data-testid` and `aria-label` contracts so the suite can stop relying on text and layout fallbacks.
+
+## Phase 1 Required
+
+- `login-username`
+- `login-password`
+- `login-submit`
+- `login-toggle-password`
+- `login-register-entry`
+- `header-user-menu-trigger`
+- `header-menu-dashboard`
+- `header-menu-child-list`
+- `header-menu-frontdesk`
+- `mobile-hamburger-trigger`
+- `frontdesk-child-drawer-trigger`
+- `frontdesk-faq-link`
+- `frontdesk-about-link`
+- `frontdesk-tab-development`
+- `frontdesk-tab-record`
+- `frontdesk-tab-advice`
+- `frontdesk-tab-profile`
+- `child-form-dialog`
+- `child-create-trigger`
+- `child-name`
+- `child-id`
+- `child-birth-date`
+- `assessment-start`
+- `assessment-resume`
+- `assessment-upload-video`
+- `assessment-preview-video`
+- `assessment-retry-video`
+
+## Accessibility Contract
+
+- Any icon-only control should expose an accessible name through `aria-label` or equivalent visible text.
+- Mobile top-nav controls should not rely on bare clickable `img` tags.
+- The mobile hamburger currently renders as a Heroicons `bars-3` SVG with path `M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5`; this should be replaced by `mobile-hamburger-trigger`.
+- Navigation links for FAQ, About, admin shell, and frontdesk should keep stable accessible names across layouts.
 
 ## Auth
 

@@ -12,15 +12,17 @@ function printHelp() {
 
 Devices:
   iphone
+  ios16plus
   iphone14
   android
   pixel5
   ipad-safari
+  ipad16plus
   ipad-chrome
   random-mobile
 
 Environment:
-  PW_BASE_URL         Default base url, fallback http://61.220.55.161:47080
+  PW_BASE_URL         Default base url, fallback https://sit-wetpaint.ddns.net
   PW_RECORD_URL       Optional override full url, fallback <baseUrl>/login
 `);
 }
@@ -33,7 +35,7 @@ async function main() {
   }
 
   const profile = resolveManualProfile(requestedProfile);
-  const baseURL = (process.env.PW_BASE_URL || 'http://61.220.55.161:47080').trim();
+  const baseURL = (process.env.PW_BASE_URL || 'https://sit-wetpaint.ddns.net').trim();
   const recordUrl = (process.env.PW_RECORD_URL || `${baseURL.replace(/\/$/, '')}/login`).trim();
 
   const recordingsDir = path.resolve(process.cwd(), 'recordings');

@@ -14,10 +14,12 @@ function printHelp() {
 
 Devices:
   iphone
+  ios16plus
   iphone14
   android
   pixel5
   ipad-safari
+  ipad16plus
   ipad-chrome
   random-mobile
 
@@ -39,12 +41,12 @@ async function main() {
 
   const profile = resolveManualProfile(requestedProfile);
   const descriptor = getDeviceDescriptor(profile);
-  const baseURL = (process.env.PW_BASE_URL || 'http://61.220.55.161:47080').trim();
+  const baseURL = (process.env.PW_BASE_URL || 'https://sit-wetpaint.ddns.net').trim();
   const targetUrl = (process.env.PW_MANUAL_TRACE_URL || `${baseURL.replace(/\/$/, '')}/login`).trim();
   const slowMo = Number(process.env.PW_MANUAL_TRACE_SLOWMO_MS || 0);
 
   const manualTraceDir = path.resolve(process.cwd(), 'reports', 'manual-trace');
-  const manualVideoDir = path.resolve(process.cwd(), 'test-results', 'manual-trace-video');
+  const manualVideoDir = path.resolve(process.cwd(), 'reports', 'manual-trace-video');
   await fs.mkdir(manualTraceDir, { recursive: true });
   await fs.mkdir(manualVideoDir, { recursive: true });
 

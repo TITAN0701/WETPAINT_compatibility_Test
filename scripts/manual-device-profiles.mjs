@@ -3,9 +3,9 @@ import { devices } from 'playwright';
 const manualProfiles = {
   iphone: {
     key: 'iphone',
-    label: 'iPhone 13 / Safari',
+    label: 'iPhone 14 Pro / Safari',
     browserName: 'webkit',
-    deviceName: 'iPhone 13'
+    deviceName: 'iPhone 14 Pro'
   },
   iphone14: {
     key: 'iphone14',
@@ -27,15 +27,15 @@ const manualProfiles = {
   },
   ipadSafari: {
     key: 'ipad-safari',
-    label: 'iPad Pro 11 / Safari',
+    label: 'iPad (gen 11) / Safari',
     browserName: 'webkit',
-    deviceName: 'iPad Pro 11'
+    deviceName: 'iPad (gen 11)'
   },
   ipadChrome: {
     key: 'ipad-chrome',
-    label: 'iPad Pro 11 / Chrome',
+    label: 'iPad (gen 11) / Chrome',
     browserName: 'chromium',
-    deviceName: 'iPad Pro 11'
+    deviceName: 'iPad (gen 11)'
   }
 };
 
@@ -62,6 +62,8 @@ export function resolveManualProfile(input = 'random-mobile') {
   const aliasMap = {
     iphone: manualProfiles.iphone,
     'iphone-safari': manualProfiles.iphone,
+    ios16plus: manualProfiles.iphone,
+    'ios16plus-safari': manualProfiles.iphone,
     iphone14: manualProfiles.iphone14,
     'iphone14-safari': manualProfiles.iphone14,
     android: manualProfiles.android,
@@ -69,7 +71,9 @@ export function resolveManualProfile(input = 'random-mobile') {
     pixel5: manualProfiles.pixel5,
     'pixel5-chrome': manualProfiles.pixel5,
     ipad: manualProfiles.ipadSafari,
+    ipad16plus: manualProfiles.ipadSafari,
     'ipad-safari': manualProfiles.ipadSafari,
+    'ipad16plus-safari': manualProfiles.ipadSafari,
     'ipad-chrome': manualProfiles.ipadChrome
   };
 
