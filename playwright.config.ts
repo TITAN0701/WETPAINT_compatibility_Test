@@ -40,6 +40,13 @@ export default defineConfig({
       }
     },
     {
+      name: 'desktop-firefox',
+      use: {
+        ...devices['Desktop Firefox'],
+        viewport: { width: 1440, height: 900 }
+      }
+    },
+    {
       name: 'iphone-safari',
       use: {
         ...devices['iPhone 14 Pro'],

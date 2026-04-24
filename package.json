@@ -21,6 +21,7 @@
     "test:admin:readonly": "playwright test --grep \"(?=.*@admin)(?=.*@readonly)\"",
     "test:shared": "playwright test --grep @shared",
     "test:workflow": "playwright test --grep @workflow",
+    "test:firefox": "playwright test --project=desktop-firefox",
     "test:ui": "playwright test --grep @ui",
     "test:rwd": "playwright test --grep @rwd",
     "test:media": "playwright test --grep @media",
@@ -46,7 +47,7 @@
     "manual:trace:ipad16plus": "node scripts/manual-trace-session.mjs ipad16plus",
     "report:assert-signal": "node scripts/assert-playwright-signal.mjs",
     "report:summary": "node scripts/summarize-playwright-report.mjs",
-    "pw:install": "playwright install chromium webkit"
+    "pw:install": "playwright install chromium firefox webkit"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",

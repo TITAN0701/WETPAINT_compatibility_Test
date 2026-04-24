@@ -22,6 +22,7 @@
 
 ## Projects
 - `desktop-chrome`
+- `desktop-firefox`
 - `iphone-safari`
 - `android-chrome`
 - `ipad-safari`
@@ -39,6 +40,7 @@
 ## 報告怎麼看
 - `npm run test:smoke` 只跑 `desktop-chrome` 和 `android-chrome`
 - `npm run test:smoke:full` 會跑 `desktop-chrome`、`iphone-safari`、`android-chrome`、`ipad-safari`、`ipad-chrome`
+- `desktop-firefox` 目前保留在 config，但本機若被 Windows 應用程式控制原則封鎖，請改在其他環境執行
 - 先看 `reports/compatibility-summary.html`
 - 看 `Projects`: 哪個平台 fail 最多
 - 看 `Feature Areas`: 哪個類別 fail 最多
