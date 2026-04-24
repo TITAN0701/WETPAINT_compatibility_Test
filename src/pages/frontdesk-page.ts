@@ -95,8 +95,11 @@ export class FrontdeskPage {
   private aboutLinkCandidates(): Locator[] {
     return [
       this.page.getByTestId('frontdesk-about-link'),
+      this.page.locator('a[href="/about"]').first(),
+      this.page.locator('header nav a[href="/about"]').first(),
       this.page.getByRole('link', { name: /about/i }),
       this.page.getByRole('button', { name: /about/i }),
+      this.page.locator('a, button, div, span').filter({ has: this.page.locator('a[href="/about"]') }).first(),
       this.page.locator('a, button, div, span').filter({ hasText: /about/i }).first()
     ];
   }

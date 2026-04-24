@@ -14,8 +14,13 @@ export async function firstVisible(
     for (const candidate of candidates) {
       try {
         const count = await candidate.count();
-        if (count > 0 && (await candidate.first().isVisible())) {
-          return candidate.first();
+        const limit = Math.min(count, 8);
+
+        for (let index = 0; index < limit; index += 1) {
+          const visibleCandidate = candidate.nth(index);
+          if (await visibleCandidate.isVisible().catch(() => false)) {
+            return visibleCandidate;
+          }
         }
       } catch {
         // Ignore transient locator errors while waiting for UI to settle.
