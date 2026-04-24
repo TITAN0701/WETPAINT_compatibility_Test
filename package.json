@@ -8,6 +8,7 @@
     "env:check": "node scripts/check-env-contract.mjs",
     "env:check:strict": "node scripts/check-env-contract.mjs --strict",
     "test:smoke": "playwright test --project=desktop-chrome --project=android-chrome --grep @smoke",
+    "test:smoke:full": "playwright test --project=desktop-chrome --project=iphone-safari --project=android-chrome --project=ipad-safari --project=ipad-chrome --grep @smoke",
     "test:smoke:all-projects": "playwright test --grep @smoke",
     "test:compat": "playwright test --grep @compat",
     "test:compat:readonly": "playwright test --grep @readonly",
