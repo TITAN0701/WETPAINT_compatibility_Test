@@ -1,11 +1,28 @@
-import type { Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 import { clickFirstVisible, expectAnyVisible, firstVisible, maybeFirstVisible, waitForUiSettled } from '../helpers/locator';
 
 export type AssessmentScreenState = 'overview' | 'tutorial' | 'question' | 'upload' | 'unknown';
 export type AssessmentTutorialAction = 'start';
+type AssessmentTargetState = Exclude<AssessmentScreenState, 'unknown'>;
+export interface AssessmentAdvanceResult {
+  state: AssessmentScreenState;
+  answeredQuestions: number;
+}
 
 export class MediaFlowPage {
   constructor(private readonly page: Page) {}
+
+  getPage() {
+    return this.page;
+  }
+
+  private primaryActionCandidates() {
+    return [this.page.locator('main button:enabled').last(), this.page.locator('footer button:enabled').last(), this.page.locator('button:enabled').last()];
+  }
+
+  private tutorialSignalCandidates() {
+    return [this.page.getByText(/0%|00:45/i), this.page.locator('main').getByText(/0%|00:45/i)];
+  }
 
   private startEntryCandidates() {
     return [
@@ -27,6 +44,7 @@ export class MediaFlowPage {
   private overviewActionCandidates() {
     return [
       ...this.startEntryCandidates(),
+      ...this.primaryActionCandidates(),
       this.page.getByRole('button').filter({ hasText: /開始|繼續|下一步|start|continue|next/i }).first(),
       this.page.locator('button').filter({ hasText: /開始|繼續|下一步|start|continue|next/i }).first()
     ];
@@ -90,6 +108,10 @@ export class MediaFlowPage {
       return 'tutorial';
     }
 
+    if (await maybeFirstVisible(this.tutorialSignalCandidates(), { name: 'assessment tutorial signal', timeoutMs: 750 })) {
+      return 'tutorial';
+    }
+
     if (await maybeFirstVisible([...this.uploadCandidates(), this.page.locator('video')], { name: 'assessment upload', timeoutMs: 750 })) {
       return 'upload';
     }
@@ -99,6 +121,16 @@ export class MediaFlowPage {
     }
 
     return 'unknown';
+  }
+
+  async clickPrimaryActionIfPresent(): Promise<boolean> {
+    const candidate = await firstVisible(this.primaryActionCandidates(), { name: 'assessment primary action', timeoutMs: 1_000 }).catch(() => null);
+    if (!candidate) {
+      return false;
+    }
+
+    await candidate.click();
+    return true;
   }
 
   async openEntryIfNeeded() {
@@ -155,22 +187,118 @@ export class MediaFlowPage {
     return this.getScreenState();
   }
 
+  async advanceUntilState(
+    targetStates: AssessmentTargetState[],
+    options: {
+      tutorialAction?: AssessmentTutorialAction;
+      autoAnswerQuestions?: boolean;
+      maxTransitions?: number;
+    } = {}
+  ): Promise<AssessmentAdvanceResult> {
+    const tutorialAction = options.tutorialAction ?? 'start';
+    const autoAnswerQuestions = options.autoAnswerQuestions ?? true;
+    const maxTransitions = options.maxTransitions ?? 30;
+    let answeredQuestions = 0;
+
+    await this.openEntryIfNeeded();
+
+    for (let attempt = 0; attempt < maxTransitions; attempt += 1) {
+      const screenState = await this.getScreenState();
+
+      if (targetStates.includes(screenState as AssessmentTargetState)) {
+        return {
+          state: screenState,
+          answeredQuestions
+        };
+      }
+
+      if (screenState === 'overview') {
+        await clickFirstVisible(this.overviewActionCandidates(), { name: 'assessment overview action' });
+        await waitForUiSettled(this.page, 6_000).catch(() => undefined);
+        continue;
+      }
+
+      if (screenState === 'tutorial') {
+        await clickFirstVisible(this.tutorialActionCandidates(tutorialAction), { name: `assessment tutorial ${tutorialAction}` });
+        await waitForUiSettled(this.page, 6_000).catch(() => undefined);
+        continue;
+      }
+
+      if (screenState === 'question' && autoAnswerQuestions) {
+        const answered = await this.answerFirstChoiceIfPresent();
+        const advanced = await this.clickNextIfPresent();
+
+        if (answered || advanced) {
+          answeredQuestions += 1;
+        }
+
+        if (!answered && !advanced) {
+          return {
+            state: screenState,
+            answeredQuestions
+          };
+        }
+
+        await waitForUiSettled(this.page, 6_000).catch(() => undefined);
+        continue;
+      }
+
+      if (screenState !== 'unknown') {
+        return {
+          state: screenState,
+          answeredQuestions
+        };
+      }
+
+      if (await this.clickPrimaryActionIfPresent()) {
+        await waitForUiSettled(this.page, 6_000).catch(() => undefined);
+        continue;
+      }
+    }
+
+    throw new Error(`Unable to reach assessment state: ${targetStates.join(', ')}`);
+  }
+
   async expectQuestionOrUploadArea() {
     await expectAnyVisible(this.questionCandidates(), { name: 'assessment media/question area', timeoutMs: 15_000 });
   }
 
-  async answerFirstChoiceIfPresent() {
+  async expectPrimaryInteractionWithinViewport() {
+    const candidate = await firstVisible(
+      [...this.uploadCandidates(), ...this.nextCandidates(), ...this.choiceCandidates(), ...this.primaryActionCandidates()],
+      { name: 'assessment primary interaction' }
+    );
+
+    await this.expectLocatorWithinViewport(candidate, 'assessment primary interaction');
+  }
+
+  async expectUploadControlVisible() {
+    await expectAnyVisible(this.uploadCandidates(), { name: 'media upload control' });
+  }
+
+  async expectUploadControlWithinViewport() {
+    const uploadTarget = await firstVisible(this.uploadCandidates(), { name: 'media upload control' });
+    await this.expectLocatorWithinViewport(uploadTarget, 'media upload control');
+  }
+
+  async answerFirstChoiceIfPresent(): Promise<boolean> {
     const candidate = await maybeFirstVisible(this.choiceCandidates(), { name: 'assessment first choice', timeoutMs: 1_000 });
     if (candidate) {
       await candidate.click();
+      return true;
     }
+
+    return false;
   }
 
-  async clickNextIfPresent() {
+  async clickNextIfPresent(): Promise<boolean> {
     const candidate = await firstVisible(this.nextCandidates(), { name: 'assessment next', timeoutMs: 1_000 }).catch(() => null);
     if (candidate) {
       await candidate.click();
+      return true;
     }
+
+    return false;
   }
 
   async uploadMedia(filePath?: string) {
@@ -188,6 +316,29 @@ export class MediaFlowPage {
     }
   }
 
+  async expectSelectedMediaAttached() {
+    const input = await maybeFirstVisible([this.page.locator('input[type="file"]').first()], {
+      name: 'media file input',
+      timeoutMs: 1_000
+    });
+
+    if (!input) {
+      return;
+    }
+
+    await expect
+      .poll(async () => {
+        return input.evaluate((node) => {
+          if (!(node instanceof HTMLInputElement)) {
+            return 0;
+          }
+
+          return node.files?.length ?? 0;
+        });
+      })
+      .toBeGreaterThan(0);
+  }
+
   async expectPreviewOrRetryVisible() {
     await expectAnyVisible(
       [
@@ -198,6 +349,20 @@ export class MediaFlowPage {
       ],
       { name: 'media preview or retry' }
     );
+  }
+
+  async expectPreviewOrRetryWithinViewport() {
+    const candidate = await firstVisible(
+      [
+        this.page.getByTestId('assessment-preview-video'),
+        this.page.getByTestId('assessment-retry-video'),
+        this.page.locator('video'),
+        this.page.getByText(/retry|preview|video/i)
+      ],
+      { name: 'media preview or retry' }
+    );
+
+    await this.expectLocatorWithinViewport(candidate, 'media preview or retry');
   }
 
   async clickRetryIfPresent() {
@@ -237,5 +402,20 @@ export class MediaFlowPage {
       ],
       { name: 'completion area', timeoutMs: 20_000 }
     );
+  }
+
+  private async expectLocatorWithinViewport(locator: Locator, name: string) {
+    await expect(locator).toBeVisible();
+
+    const box = await locator.boundingBox();
+    const viewport = this.page.viewportSize();
+
+    expect(box, `${name} should have a bounding box`).not.toBeNull();
+    expect(viewport, 'viewport should be available').not.toBeNull();
+
+    expect(box!.x, `${name} should not be clipped on the left`).toBeGreaterThanOrEqual(0);
+    expect(box!.y, `${name} should not be clipped on the top`).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width, `${name} should fit within viewport width`).toBeLessThanOrEqual(viewport!.width + 1);
+    expect(box!.y + box!.height, `${name} should fit within viewport height`).toBeLessThanOrEqual(viewport!.height + 1);
   }
 }

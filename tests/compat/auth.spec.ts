@@ -3,14 +3,14 @@ import { RegisterPage } from '../../src/pages/register-page';
 import { test, expect } from '../../src/fixtures/test';
 
 test.describe('Auth compatibility', () => {
-  test('@compat @readonly @shared 使用 email 可成功登入', async ({ page, accounts }) => {
+  test('@smoke @readonly @shared 使用 email 可成功登入', async ({ page, accounts }) => {
     const loginPage = new LoginPage(page);
     await loginPage.goto();
     await loginPage.login(accounts.admin);
     await expect(page).toHaveURL(/(dashboard|admin|developmental|child)/);
   });
 
-  test('@compat @readonly @shared 使用手機帳號可成功登入', async ({ page, accounts }) => {
+  test('@smoke @readonly @shared 使用手機帳號可成功登入', async ({ page, accounts }) => {
     const loginPage = new LoginPage(page);
     await loginPage.goto();
     await loginPage.login(accounts.adminPhone);
